@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import random
 import math
+import sys
 
 def euclidian(a, b):
     return np.linalg.norm(a-b)
@@ -40,7 +41,7 @@ class knn():
         #sort dict by value
         labels = sorted(labels.items(), key=lambda x: x[1], reverse=True)
         #return first item in dict
-        return next(iter(labels))
+        return next(iter(labels))[0]
 
     def getNeighbors(self, sample):
         for idx, tupel in enumerate(self.trainedData):
@@ -51,10 +52,18 @@ class knn():
             tmp.append(self.trainedData[self.lengths[self.k][1]])
         return tmp
 
-    def score(self):
-        pass
+    def score(self, valData, valLabel):
+        right = 0
+        for idx, sample in enumerate(valData):
+            prediction = self.predict(sample)
+            if(prediction == valLabel[idx]):
+                right += 1
+            sys.stdout.write(str(idx+1) + ' samples validated.\r')
+            sys.stdout.flush()
+        return (right/len(valData))*100
 
-# --------- Testing ---------
+
+# --------------------- Testing ---------------------
 import sklearn
 if int((sklearn.__version__).split(".")[1]) < 18:
     from sklearn.cross_validation import train_test_split
@@ -63,12 +72,14 @@ else:
 
 # load the MNIST digits dataset
 mnist = datasets.load_digits()
-(trainData, testData, trainLabels, testLabels) = train_test_split(np.array(mnist.data),
-                                                                  mnist.target, test_size=0.25, random_state=42)
-_knn = knn(k=22, distanceFunc=minkowskiDistance)
+(trainData, testData, trainLabels, testLabels) = train_test_split(np.array(mnist.data), mnist.target, test_size=0.25, random_state=42)
+
+_knn = knn(k=22, distanceFunc=euclidian)
 _knn.train(trainData,trainLabels)
+score = _knn.score(testData,testLabels)
+print("Accuracy: {}".format(score))
 
 for i in range(10):
     randomSample = random.randint(0, len(testData))
     prediction = _knn.predict(testData[randomSample])
-    print("The number was {} and the prediction was {}".format(testLabels[randomSample],prediction[0]))
+    print("The number was {} and the prediction was {}".format(testLabels[randomSample],prediction))
