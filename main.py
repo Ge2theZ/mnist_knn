@@ -3,9 +3,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import random
+import math
+
+def euclidian(a, b):
+    return np.linalg.norm(a-b)
+
+def manhatten(a, b):
+    return np.abs(A[:,None] - B).sum(-1)
+
+def minkowskiDistance(a, b):
+    distance = 0
+    for i in range(len(a)-1):
+        distance += abs(pow(a[i]-b[i],3))
+    return math.pow(distance,1./3)
 
 class knn():
-    def __init__(self, k=1, distanceFunc="euclidean"):
+    def __init__(self, k=1, distanceFunc=euclidian):
         self.trainedData = []
         self.k = k
         self.distanceFunc = distanceFunc
@@ -31,15 +44,12 @@ class knn():
 
     def getNeighbors(self, sample):
         for idx, tupel in enumerate(self.trainedData):
-             self.lengths.append((self.euclidian(tupel[0], sample),idx,tupel[1]))
+             self.lengths.append((self.distanceFunc(tupel[0], sample),idx,tupel[1]))
         self.lengths = sorted(self.lengths, key=lambda x: x[0])
         tmp = []
         for i in range(self.k):
             tmp.append(self.trainedData[self.lengths[self.k][1]])
         return tmp
-
-    def euclidian(self, a, b):
-        return np.linalg.norm(a-b)
 
     def score(self):
         pass
@@ -55,7 +65,7 @@ else:
 mnist = datasets.load_digits()
 (trainData, testData, trainLabels, testLabels) = train_test_split(np.array(mnist.data),
                                                                   mnist.target, test_size=0.25, random_state=42)
-_knn = knn(k=22)
+_knn = knn(k=22, distanceFunc=minkowskiDistance)
 _knn.train(trainData,trainLabels)
 
 for i in range(10):
