@@ -14,6 +14,8 @@ import numpy as np
 import imutils
 import cv2
 import sklearn
+from knn_lib import *
+
 
 # handle older versions of sklearn
 if int((sklearn.__version__).split(".")[1]) < 18:
@@ -50,7 +52,10 @@ accuracies = []
 # loop over various values of `k` for the k-Nearest Neighbor classifier
 for k in range(1, 30, 2):
     # train the k-Nearest Neighbor classifier with the current value of `k`
-    model = KNeighborsClassifier(n_neighbors=k)
+    #our knn implementation
+    model = knn(k=k)
+    #sklearn knn implementation
+    #model = KNeighborsClassifier(n_neighbors=k)
     model.fit(trainData, trainLabels)
 
     # evaluate the model and update the accuracies list
@@ -65,7 +70,8 @@ print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i],
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
-model = KNeighborsClassifier(n_neighbors=kVals[i])
+#model = KNeighborsClassifier(n_neighbors=kVals[i])
+model = knn(k=kVals[i])
 model.fit(trainData, trainLabels)
 predictions = model.predict(testData)
 
