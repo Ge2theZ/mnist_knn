@@ -2,21 +2,16 @@ from sklearn import datasets
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from scipy.spatial.distance import pdist
 import random
 import math
 import sys
 
 def euclidian(a, b):
-    return np.linalg.norm(a-b)
+    return np.linalg.norm(a - b, ord=2)
 
 def manhatten(a, b):
-    return np.abs(A[:,None] - B).sum(-1)
-
-def minkowskiDistance(a, b):
-    distance = 0
-    for i in range(len(a)-1):
-        distance += abs(pow(a[i]-b[i],3))
-    return math.pow(distance,1./3)
+    return np.linalg.norm(a - b, ord=1)
 
 class knn():
     def __init__(self, k=1, distanceFunc=euclidian):
@@ -49,7 +44,7 @@ class knn():
         self.lengths = sorted(self.lengths, key=lambda x: x[0])
         tmp = []
         for i in range(self.k):
-            tmp.append(self.trainedData[self.lengths[self.k][1]])
+            tmp.append(self.trainedData[self.lengths[i][1]])
         return tmp
 
     def score(self, valData, valLabel):
@@ -74,10 +69,10 @@ else:
 mnist = datasets.load_digits()
 (trainData, testData, trainLabels, testLabels) = train_test_split(np.array(mnist.data), mnist.target, test_size=0.25, random_state=42)
 
-_knn = knn(k=22, distanceFunc=euclidian)
+_knn = knn(k=8, distanceFunc=manhatten)
 _knn.train(trainData,trainLabels)
 score = _knn.score(testData,testLabels)
-print("Accuracy: {}".format(score))
+print("\nAccuracy: {}".format(score))
 
 for i in range(10):
     randomSample = random.randint(0, len(testData))
