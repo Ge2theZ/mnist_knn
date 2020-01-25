@@ -8,14 +8,15 @@ from __future__ import print_function
 from sklearn.metrics import classification_report
 from sklearn import random_projection
 from skimage import exposure
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import numpy as np
 import imutils
 import cv2
 import sklearn
-from knn_lib import *
-from utils import *
+from classes.knn_lib import *
+from classes.utils import *
 
 import pandas as pd
 
@@ -62,15 +63,16 @@ print("testArr Elements: ", testArr.shape[0])
 #valArr Elements:  4200
 #testArr Elements:  28000
 
-trainSize = 50
-valSize = 135
+trainSize = 1000
+valSize = 100
 
 (k_raw, percent) = Utils.find_k(trainArr, valArr, labelsTrainArr, labelsValArr, trainSize, valSize)
 
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
-model = knn(k=k_raw)
+model = KNeighborsClassifier(n_neighbors=k)
+#model = knn(k=k_raw)
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
 predictions = model.predict(valArr[:valSize,:])
 
@@ -95,5 +97,3 @@ for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
     print("I think that digit is: {}".format(prediction))
     cv2.imshow("Image", image)
     cv2.waitKey(0)
-
-
