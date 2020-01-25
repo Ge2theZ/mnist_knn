@@ -5,15 +5,17 @@ Comment: Made some minor adjustments
 
 # import the necessary packages
 from __future__ import print_function
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
-from sklearn import datasets
+from sklearn import random_projection
 from skimage import exposure
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 import numpy as np
 import imutils
 import cv2
 import sklearn
 from knn_lib import *
+from utils import *
 
 import pandas as pd
 
@@ -52,38 +54,23 @@ print("testArr Elements: ", testArr.shape[0])
 # classifier. The val array is used to retrieve the best value for k and to retrieve a score for our classifier.
 # The test data is data which does not contain any labels. This is the actual data that needs to be classified and
 # submitted in the kaggle contest.
+#dfTrain Size:  37800
+#dfVal Size:  4200
+#labelsTrainArr Size:  37800
+#trainArr Elements:  37800
+#labelsValArr Size:  4200
+#valArr Elements:  4200
+#testArr Elements:  28000
 
+trainSize = 50
+valSize = 135
 
-# initialize the values of k for our k-Nearest Neighbor classifier along with the
-# list of accuracies for each value of k
-kVals = range(1, 30, 2)
-accuracies = []
+(k_raw, percent) = Utils.find_k(trainArr, valArr, labelsTrainArr, labelsValArr, trainSize, valSize)
 
-trainSize = 1000
-valSize = 100
-
-# loop over various values of `k` for the k-Nearest Neighbor classifier
-for k in range(1, 30, 2):
-    # train the k-Nearest Neighbor classifier with the current value of `k`
-    #sklearn knn implementation
-    #model = KNeighborsClassifier(n_neighbors=k)
-    #our knn implementation
-    model = knn(k=k)
-    model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
-
-    # evaluate the model and update the accuracies list
-    score = model.score(valArr[:valSize,:], labelsValArr[:valSize])
-    print("k=%d, accuracy=%.2f%%" % (k, score * 100))
-    accuracies.append(score)
-
-# find the value of k that has the largest accuracy
-i = int(np.argmax(accuracies))
-print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i],
-                                                                       accuracies[i] * 100))
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
-model = knn(k=kVals[i])
+model = knn(k=k_raw)
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
 predictions = model.predict(valArr[:valSize,:])
 
@@ -95,7 +82,7 @@ print(classification_report(labelsValArr[:valSize], predictions))
 # loop over a few random digits
 for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
     # grab the image and classify it
-    image = valArr[i]
+    image = testArr[i]
     prediction = model.predict(image.reshape(1, -1))[0]
 
     # convert the image for a 64-dim array to an 8 x 8 image compatible with OpenCV,
@@ -108,3 +95,5 @@ for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
     print("I think that digit is: {}".format(prediction))
     cv2.imshow("Image", image)
     cv2.waitKey(0)
+
+
