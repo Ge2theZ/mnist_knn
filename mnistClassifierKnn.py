@@ -96,3 +96,28 @@ for i in list(map(int, np.random.randint(0, high=len(testLabels), size=(5,)))):
     print("I think that digit is: {}".format(prediction))
     cv2.imshow("Image", image)
     cv2.waitKey(0)
+
+#------------------------------- Confusion Matrix -----------------------------------------
+
+import pandas as pd
+import seaborn as sn
+import matplotlib.pyplot as plt
+
+#calculate with pandas
+tl = pd.Series((testLabels), name = 'Actual')
+pl = pd.Series((predictions), name = 'Predicted')
+cm = pd.crosstab(tl, pl, rownames=['Actual'], colnames=['Predicted'])
+cm_norm = cm / cm.sum(axis=1) #normalize
+print(cm_norm.round(2))
+cm_norm.round(2).to_csv('con_mat.csv', index=False, header=True)
+
+#plot
+cm_plt = pd.DataFrame(cm_norm, range(10), range(10))
+sn.set(font_scale=1.4) #for label size
+sn.heatmap(cm_plt.round(2), annot=True, annot_kws={"size" : 16}) #font size
+plt.title('Confusion Matrix \n')
+plt.ylabel('Actual')
+plt.xlabel('Predicted')
+plt.show() #save plot as image
+
+
