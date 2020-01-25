@@ -10,6 +10,7 @@ from sklearn import random_projection
 from skimage import exposure
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.manifold import TSNE
+from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 import numpy as np
 import imutils
@@ -20,66 +21,105 @@ from classes.utils import *
 
 import pandas as pd
 
-# read the mnist train data
-mnistData = pd.read_csv("data/train.csv")
-mnistTest = pd.read_csv("data/test.csv")
-dfMnist = pd.DataFrame(mnistData)
-dfTest = pd.DataFrame(mnistTest)
+# Any results you write to the current directory are saved as output.
+train = pd.read_csv('data/train.csv')
+submission = pd.read_csv('data/test.csv')
 
-# Split the mnist train data into a dataframe of train and validation labels
-dfVal = pd.DataFrame(mnistData).iloc[int(mnistData.shape[0] * 0.9):, :]
-dfTrain = pd.DataFrame(mnistData).iloc[:int(mnistData.shape[0] * 0.9), :]
+y_train = train['label']
+X_train = train.drop('label', axis=1)
+X_submission = submission
 
-print("dfTrain Size: ", dfTrain.shape[0])
-print("dfVal Size: ", dfVal.shape[0])
+y_train.head()
+X_submission.head()
+y_train = y_train.to_numpy()
+X_train = X_train.to_numpy()
 
-# Convert the train dataframe to an array of features and labels
-labelsTrainArr = dfTrain['label'].to_numpy()
-trainArr = dfTrain.loc[:, 'pixel0':].to_numpy()
+# Plot data for pca
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(X_train)
+plt.scatter(pca_result[:4000, 0], pca_result[:4000, 1], c=y_train[:4000], edgecolor='none', alpha=0.5,
+            cmap=plt.get_cmap('jet', 10), s=5)
+plt.colorbar()
+plt.title("PCA")
+plt.show()
 
-print("labelsTrainArr Size: ", labelsTrainArr.size)
-print("trainArr Elements: ", trainArr.shape[0])
-
-# Convert the val dataframe to an array of features and labels
-labelsValArr = dfVal['label'].to_numpy()
-valArr = dfVal.loc[:, 'pixel0':].to_numpy()
-
-print("labelsValArr Size: ", labelsValArr.size)
-print("valArr Elements: ", valArr.shape[0])
-
-# Convert the test dataframe to an array of features
-testArr = dfTest.loc[:, 'pixel0':].to_numpy()
-print("testArr Elements: ", testArr.shape[0])
-
-# We splitted our train data into an array of train data and an array of val data. The train data is used to train our
-# classifier. The val array is used to retrieve the best value for k and to retrieve a score for our classifier.
-# The test data is data which does not contain any labels. This is the actual data that needs to be classified and
-# submitted in the kaggle contest.
-#dfTrain Size:  37800
-#dfVal Size:  4200
-#labelsTrainArr Size:  37800
-#trainArr Elements:  37800
-#labelsValArr Size:  4200
-#valArr Elements:  4200
-#testArr Elements:  28000
-
-trainSize = 1000
-valSize = 100
-
-(k_raw, percent) = Utils.find_k(trainArr, valArr, labelsTrainArr, labelsValArr, trainSize, valSize)
+# plot data for random projection
+transformer = random_projection.GaussianRandomProjection(n_components=2)
+rand_projection_result = transformer.fit_transform(X_train)
+plt.scatter(rand_projection_result[:4000, 0], rand_projection_result[:4000, 1], c=y_train[:4000], edgecolor='none', alpha=0.5,
+            cmap=plt.get_cmap('jet', 10), s=5)
+plt.colorbar()
+plt.title("Random Transformer")
+plt.show()
 
 
+# plot data from tsme
+tsne_result = TSNE(n_components=2).fit_transform(X_train[:1000, :])
+plt.scatter(tsne_result[:4000, 0], tsne_result[:1000, 1], c=y_train[:1000], edgecolor='none', alpha=0.5,
+            cmap=plt.get_cmap('jet', 10), s=5)
+plt.colorbar()
+plt.title("t-sne")
+plt.show()
+
+
+pca = PCA(n_components=50)
+X_train_transformed = pca.fit_transform(X_train)
+X_submission_transformed = pca.transform(X_submission)
+
+transformer = random_projection.GaussianRandomProjection(n_components=50)
+X_train_transformer = transformer.fit_transform(X_train)
+X_test_transformer = transformer.fit_transform(X_submission)
+
+tsne = TSNE(n_components=2)
+X_train_tsne = tsne.fit_transform(X_train)
+X_submission_tsne = tsne.fit_transform(X_submission)
+
+X_train_pca, X_test_pca, y_train_pca, y_test_pca = train_test_split(
+    X_train_transformed, y_train, test_size=0.05, random_state=13)
+X_train_raw, X_test_raw, y_train_raw, y_test_raw = train_test_split(X_train, y_train, test_size=0.05, random_state=13)
+X_train_rp, X_test_rp, y_train_rp, y_test_rp = train_test_split(X_train_transformer, y_train, test_size=0.05, random_state=13)
+X_train_tsne, X_test_tsne, y_train_tnse, y_test_tnse = train_test_split(X_train_tsne, y_train, test_size=0.05, random_state=13)
+
+
+print("X_train_pca shape: ", X_train_pca.shape)
+print("X_test_pca shape: ", X_test_pca.shape)
+
+print("X_train_raw shape: ", X_train_raw.shape)
+print("X_test_raw shape: ", X_test_raw.shape)
+
+trainSize = 35910
+testSize = 1890
+
+(k_rp, percent) = Utils.find_k(X_train_rp, X_test_rp, y_train_rp, y_test_rp, trainSize, testSize, "Random Projection")
+(k_pca, percent) = Utils.find_k(X_train_pca, X_test_pca, y_train_pca, y_test_pca, trainSize, testSize, "Principal Component")
+(k_tsne, percent) = Utils.find_k(X_train_tsne, X_test_tsne, y_train_tnse, y_train_tnse, trainSize, testSize, "T-SNE")
+#(k_raw, percent) = Utils.find_k(X_train_raw, X_test_raw, y_train_raw, y_test_raw, trainSize, valSize, "Raw MNIST Data")
+
+
+'''
+# fit knn with pca
+model = knn(k=k_pca)
+model.fit(X_train_pca, y_train_pca)
+print("EVALUATION ON TESTING DATA FOR PCA")
+predictions = model.predict(X_test_pca[:100,:])
+print(classification_report(X_test_pca[:100,:], predictions))
+'''
+'''
 # re-train our classifier using the best k value and predict the labels of the
 # test data
+print("{} Reinitialize model with k={}. ".format(datetime.datetime.now(), k_raw))
 model = KNeighborsClassifier(n_neighbors=k_raw)
+print("{} Reinitialized model with k={}. ".format(datetime.datetime.now(), k_raw))
 #model = knn(k=k_raw)
+print("{} Fitting final model with k={}. ".format(datetime.datetime.now(), k_raw))
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
-predictions = model.predict(valArr[:valSize,:])
+#predictions = model.predict(valArr[:valSize,:])
+print("{} Fitted final model with k={}. ".format(datetime.datetime.now(), k_raw))
 
 # show a final classification report demonstrating the accuracy of the classifier
 # for each of the digits
-print("EVALUATION ON TESTING DATA")
-print(classification_report(labelsValArr[:valSize], predictions))
+#print("EVALUATION ON TESTING DATA")
+#print(classification_report(labelsValArr[:valSize], predictions))
 
 # loop over a few random digits
 for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
@@ -97,3 +137,4 @@ for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
     print("I think that digit is: {}".format(prediction))
     cv2.imshow("Image", image)
     cv2.waitKey(0)
+'''

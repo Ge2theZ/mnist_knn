@@ -5,6 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import datetime
 import seaborn as sn
 
+
 class Utils():
     def plotKAccuracieDiagram(accuracies,klist, name):
         plt.plot(klist, accuracies)
