@@ -63,23 +63,36 @@ print("testArr Elements: ", testArr.shape[0])
 #valArr Elements:  4200
 #testArr Elements:  28000
 
-trainSize = 1000
-valSize = 100
+trainSize = 37800
+valSize = 1000
+#from sklearn import decomposition
+#pca = decomposition.PCA()
 
+#pca.n_components = 500
+#pcaTrain = pca.fit_transform(trainArr)
+#pcaVal = pca.fit_transform(valArr)
+
+
+#(k_pca, percent) = Utils.find_k(pcaTrain, pcaVal, labelsTrainArr, labelsValArr, trainSize, valSize)
 (k_raw, percent) = Utils.find_k(trainArr, valArr, labelsTrainArr, labelsValArr, trainSize, valSize)
+
 
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
+print("{} Reinitialize model with k={}. ".format(datetime.datetime.now(), k_raw))
 model = KNeighborsClassifier(n_neighbors=k_raw)
+print("{} Reinitialized model with k={}. ".format(datetime.datetime.now(), k_raw))
 #model = knn(k=k_raw)
+print("{} Fitting final model with k={}. ".format(datetime.datetime.now(), k_raw))
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
-predictions = model.predict(valArr[:valSize,:])
+#predictions = model.predict(valArr[:valSize,:])
+print("{} Fitted final model with k={}. ".format(datetime.datetime.now(), k_raw))
 
 # show a final classification report demonstrating the accuracy of the classifier
 # for each of the digits
-print("EVALUATION ON TESTING DATA")
-print(classification_report(labelsValArr[:valSize], predictions))
+#print("EVALUATION ON TESTING DATA")
+#print(classification_report(labelsValArr[:valSize], predictions))
 
 # loop over a few random digits
 for i in list(map(int, np.random.randint(0, high=valSize, size=(5,)))):
