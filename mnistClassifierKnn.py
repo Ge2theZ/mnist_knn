@@ -2,8 +2,6 @@
 Source: https://gurus.pyimagesearch.com/lesson-sample-k-nearest-neighbor-classification/#
 Comment: Made some minor adjustments
 """
-
-
 # import the necessary packages
 from __future__ import print_function
 from sklearn.neighbors import KNeighborsClassifier
@@ -15,7 +13,7 @@ import imutils
 import cv2
 import sklearn
 from knn_lib import *
-
+import matplotlib.pyplot as plt
 
 # handle older versions of sklearn
 if int((sklearn.__version__).split(".")[1]) < 18:
@@ -67,7 +65,11 @@ for k in range(1, 30, 2):
 i = int(np.argmax(accuracies))
 print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i],
                                                                        accuracies[i] * 100))
-
+plt.plot([k for k in range(1, 30, 2)], accuracies)
+plt.suptitle('K-Accuracy Diagram')
+plt.ylabel('accuracy')
+plt.xlabel('K')
+plt.show()
 # re-train our classifier using the best k value and predict the labels of the
 # test data
 #model = KNeighborsClassifier(n_neighbors=kVals[i])
