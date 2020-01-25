@@ -71,7 +71,7 @@ valSize = 100
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
-model = KNeighborsClassifier(n_neighbors=k)
+model = KNeighborsClassifier(n_neighbors=k_raw)
 #model = knn(k=k_raw)
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
 predictions = model.predict(valArr[:valSize,:])
