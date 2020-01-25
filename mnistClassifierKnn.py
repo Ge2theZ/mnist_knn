@@ -13,6 +13,8 @@ import numpy as np
 import imutils
 import cv2
 import sklearn
+from knn_lib import *
+
 import pandas as pd
 
 # read the mnist train data
@@ -63,7 +65,10 @@ valSize = 100
 # loop over various values of `k` for the k-Nearest Neighbor classifier
 for k in range(1, 30, 2):
     # train the k-Nearest Neighbor classifier with the current value of `k`
-    model = KNeighborsClassifier(n_neighbors=k)
+    #sklearn knn implementation
+    #model = KNeighborsClassifier(n_neighbors=k)
+    #our knn implementation
+    model = knn(k=k)
     model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
 
     # evaluate the model and update the accuracies list
@@ -78,7 +83,7 @@ print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i],
 
 # re-train our classifier using the best k value and predict the labels of the
 # test data
-model = KNeighborsClassifier(n_neighbors=kVals[i])
+model = knn(k=kVals[i])
 model.fit(trainArr[:trainSize, :], labelsTrainArr[:trainSize])
 predictions = model.predict(valArr[:valSize,:])
 
