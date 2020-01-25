@@ -3,14 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 import datetime
+import seaborn as sn
+
 
 class Utils():
     def plotKAccuracieDiagram(accuracies,klist, name):
         plt.plot(klist, accuracies)
-        plt.suptitle(name)
+        plt.title(name)
         plt.ylabel('accuracy')
         plt.xlabel('K')
-        plt.savefig('./images/' + name)
+        plt.savefig('./images/kAccuracies_k1_37800samples_sklearn.png')
         plt.show()
 
     def find_k(train, val, labelsTrain, labelsVal, trainSize, valSize, description):
@@ -44,3 +46,20 @@ class Utils():
                                                                                accuracies[i] * 100))
         Utils.plotKAccuracieDiagram(accuracies,kVals, description)
         return kVals[i], accuracies[i] * 100
+
+    def plotConfusionMatrix(predictions,testLabels):
+        #calculate with pandas
+        tl = pd.Series((testLabels), name = 'Actual')
+        pl = pd.Series((predictions), name = 'Predicted')
+        cm = pd.crosstab(tl, pl, rownames=['Actual'], colnames=['Predicted'])
+        cm_norm = cm / cm.sum(axis=1) #normalize
+        cm_norm.round(2).to_csv('con_mat.csv', index=False, header=True)
+
+        #plot
+        cm_plt = pd.DataFrame(cm_norm, range(10), range(10))
+        sn.set(font_scale=1.4) #for label size
+        sn.heatmap(cm_plt.round(2), annot=True, annot_kws={"size" : 16}) #font size
+        plt.title('Confusion Matrix \n')
+        plt.ylabel('Actual')
+        plt.xlabel('Predicted')
+        plt.show() #save plot as image
