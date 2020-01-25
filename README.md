@@ -6,7 +6,7 @@ Python 3.7 should be installed.
 
 Run the following to install all dependencies
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 Execute with 
 ```

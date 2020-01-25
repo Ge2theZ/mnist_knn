@@ -19,3 +19,4 @@ scipy
 six
 sklearn
 wincertstore
+pandas
