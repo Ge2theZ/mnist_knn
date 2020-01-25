@@ -10,7 +10,7 @@ class Utils():
         plt.suptitle(name)
         plt.ylabel('accuracy')
         plt.xlabel('K')
-        plt.savefig('./images/kAccuracies_k1_37800samples_sklearn.png')
+        plt.savefig('./images/' + name)
         plt.show()
 
     def find_k(train, val, labelsTrain, labelsVal, trainSize, valSize, description):
