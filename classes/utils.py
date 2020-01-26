@@ -15,7 +15,7 @@ class Utils():
         plt.savefig('./images/kAccuracies_k1_37800samples_sklearn.png')
         plt.show()
 
-    def find_k(train, val, labelsTrain, labelsVal, trainSize, valSize, description):
+    def find_k(trainData, trainLabels, testData, testLabels, description):
         # initialize the values of k for our k-Nearest Neighbor classifier along with the
         # list of accuracies for each value of k
         kVals = range(1, 30, 2)
@@ -30,12 +30,12 @@ class Utils():
             # our knn implementation
             #model = knn(k=k)
             #print("{} Fitting model with k={}. ".format(datetime.datetime.now(), k))
-            model.fit(train[:trainSize, :], labelsTrain[:trainSize])
+            model.fit(trainData, trainLabels)
             #print("{} Fitted model with k={}. ".format(datetime.datetime.now(), k))
 
             # evaluate the model and update the accuracies list
             #print("{} Evaluating model with k={} and a validation data set of size = {}. ".format(datetime.datetime.now(), k, valSize))
-            score = model.score(val[:valSize, :], labelsVal[:valSize])
+            score = model.score(testData, testLabels)
             #print("{} Evaluated model with k={} and a validation data set of size = {}. ".format(datetime.datetime.now(), k, valSize))
             print("{} {}: k={}, accuracy={}%".format(datetime.datetime.now(), description,k, score * 100))
             accuracies.append(score)

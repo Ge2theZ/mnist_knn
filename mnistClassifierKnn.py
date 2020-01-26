@@ -18,22 +18,24 @@ import cv2
 import sklearn
 from classes.knn_lib import *
 from classes.utils import *
-
 import pandas as pd
+
+mnistDataAmount = 5000
+testPercentage = 0.2
 
 # Any results you write to the current directory are saved as output.
 train = pd.read_csv('data/train.csv')
-submission = pd.read_csv('data/test.csv')
 
-y_train = train['label']
-X_train = train.drop('label', axis=1)
-X_submission = submission
+mnist_labels = train['label']
+mnist_data = train.drop('label', axis=1)
+mnist_labels.head()
 
-y_train.head()
-X_submission.head()
-y_train = y_train.to_numpy()
-X_train = X_train.to_numpy()
+mnist_labels = mnist_labels.to_numpy()[:mnistDataAmount]
+mnist_data = mnist_data.to_numpy()[:mnistDataAmount]
 
+train_data_raw, test_data_raw, train_label_raw, test_label_raw = train_test_split(mnist_data, mnist_labels, test_size=testPercentage)
+
+'''
 # Plot data for pca
 pca = PCA(n_components=2)
 pca_result = pca.fit_transform(X_train)
@@ -52,49 +54,35 @@ plt.colorbar()
 plt.title("Random Transformer")
 plt.show()
 
-
-# plot data from tsme
+# plot data from tsne
 tsne_result = TSNE(n_components=2).fit_transform(X_train[:1000, :])
 plt.scatter(tsne_result[:4000, 0], tsne_result[:1000, 1], c=y_train[:1000], edgecolor='none', alpha=0.5,
             cmap=plt.get_cmap('jet', 10), s=5)
 plt.colorbar()
 plt.title("t-sne")
 plt.show()
-
-
+'''
+print("Creating PCA Representation")
 pca = PCA(n_components=50)
-X_train_transformed = pca.fit_transform(X_train)
-X_submission_transformed = pca.transform(X_submission)
+data_pca = pca.fit_transform(mnist_data)
+train_data_pca, test_data_pca, train_label_pca, test_label_pca = train_test_split(data_pca, mnist_labels, test_size=testPercentage, random_state=13)
 
+print("Creating RP Representation")
 transformer = random_projection.GaussianRandomProjection(n_components=50)
-X_train_transformer = transformer.fit_transform(X_train)
-X_test_transformer = transformer.fit_transform(X_submission)
+data_rp = transformer.fit_transform(mnist_data)
+train_data_rp, test_data_rp, train_label_rp, test_label_rp = train_test_split(data_rp, mnist_labels, test_size=testPercentage, random_state=13)
 
+
+'''print("Creating TSNE Representation")
 tsne = TSNE(n_components=2)
-X_train_tsne = tsne.fit_transform(X_train)
-X_submission_tsne = tsne.fit_transform(X_submission)
+data_tsne = tsne.fit_transform(mnist_data)
+train_data_tsne, test_data_tsne, train_label_tsne, test_label_tsne = train_test_split(data_tsne, mnist_labels, test_size=testPercentage)
+'''
 
-X_train_pca, X_test_pca, y_train_pca, y_test_pca = train_test_split(
-    X_train_transformed, y_train, test_size=0.05, random_state=13)
-X_train_raw, X_test_raw, y_train_raw, y_test_raw = train_test_split(X_train, y_train, test_size=0.05, random_state=13)
-X_train_rp, X_test_rp, y_train_rp, y_test_rp = train_test_split(X_train_transformer, y_train, test_size=0.05, random_state=13)
-X_train_tsne, X_test_tsne, y_train_tnse, y_test_tnse = train_test_split(X_train_tsne, y_train, test_size=0.05, random_state=13)
-
-
-print("X_train_pca shape: ", X_train_pca.shape)
-print("X_test_pca shape: ", X_test_pca.shape)
-
-print("X_train_raw shape: ", X_train_raw.shape)
-print("X_test_raw shape: ", X_test_raw.shape)
-
-trainSize = 35910
-testSize = 1890
-
-(k_rp, percent) = Utils.find_k(X_train_rp, X_test_rp, y_train_rp, y_test_rp, trainSize, testSize, "Random Projection")
-(k_pca, percent) = Utils.find_k(X_train_pca, X_test_pca, y_train_pca, y_test_pca, trainSize, testSize, "Principal Component")
-(k_tsne, percent) = Utils.find_k(X_train_tsne, X_test_tsne, y_train_tnse, y_train_tnse, trainSize, testSize, "T-SNE")
-#(k_raw, percent) = Utils.find_k(X_train_raw, X_test_raw, y_train_raw, y_test_raw, trainSize, valSize, "Raw MNIST Data")
-
+(k_pca, percent) = Utils.find_k(train_data_pca, train_label_raw, test_data_pca, test_label_raw, "Principal Component")
+(k_rp, percent) = Utils.find_k(train_data_rp, train_label_raw, test_data_rp, test_label_raw, "Random Projection")
+#(k_tsne, percent) = Utils.find_k(train_data_tsne, train_label_raw, test_data_tsne, test_label_raw, "T-SNE")
+(k_raw, percent) = Utils.find_k(train_data_raw, train_label_raw, test_data_raw, test_label_raw, "Raw MNIST Data")
 
 '''
 # fit knn with pca
