@@ -21,9 +21,9 @@ from classes.utils import *
 import pandas as pd
 
 #train.csv has 37800 samples
-mnistDataAmount = 30240
+mnistDataAmount =  1000 #30240
 testPercentage = 0.2
-testSize = 100 # defines the amount of digits to be used to find the best value of k within the test dataset
+testSize = 50 # defines the amount of digits to be used to find the best value of k within the test dataset
 isSubmission = False # when true, then the final test.csv data is being klassified for the submission
 
 # Any results you write to the current directory are saved as output.
@@ -81,9 +81,8 @@ tsne = TSNE(n_components=2)
 data_tsne = tsne.fit_transform(mnist_data)
 train_data_tsne, test_data_tsne, train_label_tsne, test_label_tsne = train_test_split(data_tsne, mnist_labels, test_size=testPercentage)
 '''
-
-(k_pca, percent) = Utils.find_k(train_data_pca, train_label_pca, test_data_pca, test_label_pca, "Principal Component")
-(k_rp, percent) = Utils.find_k(train_data_rp, train_label_rp, test_data_rp, test_label_rp, "Random Projection")
+(k_pca, comp_pca, percent) = Utils.find_k_with_components(train_data_pca, train_label_pca, test_data_pca, test_label_pca, "Principal Component")
+(k_rp, comp_rp, percent) = Utils.find_k_with_components(train_data_rp, train_label_rp, test_data_rp, test_label_rp, "Random Projection")
 #(k_tsne, percent) = Utils.find_k(train_data_tsne, train_label_tsne, test_data_tsne, test_label_tsne, "T-SNE")
 (k_raw, percent) = Utils.find_k(train_data_raw, train_label_raw, test_data_raw, test_label_raw, testSize, "Raw MNIST Data")
 
@@ -106,16 +105,16 @@ model_pca.fit(train_data_pca[:,:comp_pca], train_label_pca)
 predictions_pca = model_pca.predict(test_data_pca[:,:comp_pca])
 print("###### Report for pca data ######")
 print(classification_report(test_label_pca, predictions_pca))
-Utils.plotConfusionMatrix(predictions_pca,test_label_pca, "RawDatawithElements{}".format(mnistDataAmount))
+Utils.plotConfusionMatrix(predictions_pca,test_label_pca, "PCADatawithElements{}".format(mnistDataAmount))
 scores.append(Utils.getScore(predictions_pca, test_label_pca))
 
 # re-train our classifier for rp features with best value for K and components
 model_rp = knn(k=k_rp)
 model_rp.fit(train_data_rp[:,:comp_rp], train_label_rp)
-predictions_rp = model_rp.predict(test_data_prp[:,:comp_rp])
+predictions_rp = model_rp.predict(test_data_rp[:,:comp_rp])
 print("###### Report for pca data ######")
 print(classification_report(test_label_rp, predictions_rp))
-Utils.plotConfusionMatrix(predictions_rp,test_label_rp, "RawDatawithElements{}".format(mnistDataAmount))
+Utils.plotConfusionMatrix(predictions_rp,test_label_rp, "RpDatawithElements{}".format(mnistDataAmount))
 scores.append(Utils.getScore(predictions_rp, test_label_rp))
 
 
