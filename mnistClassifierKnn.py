@@ -11,10 +11,10 @@ from classes.utils import *
 import pandas as pd
 
 #train.csv has 42000 samples
-mnistDataAmount =  33600 #33600‬
+mnistDataAmount = 33600#33600
 testPercentage = 0.2
 testSize = 200 # defines the amount of digits to be used to find the best value of k within the test dataset
-isSubmission = False # when true, then the final test.csv data is being classified for the submission
+isSubmission = True # when true, then the final test.csv data is being classified for the submission
 
 # Any results you write to the current directory are saved as output.
 train = pd.read_csv('data/train.csv')
@@ -137,7 +137,7 @@ if(isSubmission):
 
         model_pca = knn(k=k_pca)
         model_pca.fit(train_data_pca[:,:comp_pca], train_label_pca)
-        predict_labels = model_pca.predict(submission_pca[:,:comp_pca])
+        predict_labels = model_pca.predict(submission_pca)
     if(indexHighestKlassifier == 2):
         print("Performing classification on pca features with k={} and components={}  for sample data".format(k_rp, comp_rp))
         features = "rp"

@@ -25,7 +25,9 @@ class knn():
 
     def predict(self, samples):
         predictions = []
-        for sample in samples:
+        for i,sample in enumerate(samples):
+            sys.stdout.write(str(i) + "/" + str(len(samples)) + "\r")
+            sys.stdout.flush()
             self.lengths = []
             nbs = self.getNeighbors(sample)
             labels = {}

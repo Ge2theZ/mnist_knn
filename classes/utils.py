@@ -26,7 +26,7 @@ class Utils():
             # train the k-Nearest Neighbor classifier with the current value of `k`
             # sklearn knn implementation
             #print("{} Initializing model with k={}. ".format(datetime.datetime.now(), k))
-            model = KNeighborsClassifier(n_neighbors=k)
+            model = KNeighborsClassifier(n_neighbors=k, n_jobs=-1)
             #print("{} Initialized model with k={}. ".format(datetime.datetime.now(), k))
             # our knn implementation
             #model = knn(k=k)
@@ -45,7 +45,7 @@ class Utils():
         i = int(np.argmax(accuracies))
         print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i], accuracies[i] * 100))
 
-        Utils.plotKAccuracieDiagram(accuracies, kVals, description)
+        Utils.plotKAccuracieDiagram(accuracies, kVals, description+"k_{}".format(kVals[i]))
         return kVals[i], accuracies[i] * 100
 
 
@@ -64,6 +64,7 @@ class Utils():
         plt.title('Confusion Matrix' + title + '\n')
         plt.ylabel('Actual')
         plt.xlabel('Predicted')
+        plt.savefig('./images/conf_matrix_' + title + '.png')
         plt.show() #save plot as image
 
     def find_k_with_components(trainData, trainLabels, testData, testLabels, description):
@@ -76,7 +77,7 @@ class Utils():
                 # train the k-Nearest Neighbor classifier with the current value of `k`
                 # sklearn knn implementation
                 #print("{} Initializing model with k={}. ".format(datetime.datetime.now(), k))
-                model = KNeighborsClassifier(n_neighbors=k)
+                model = KNeighborsClassifier(n_neighbors=k, n_jobs=-1)
                 #print("{} Initialized model with k={}. ".format(datetime.datetime.now(), k))
                 # our knn implementation
                 #model = knn(k=k)
@@ -124,6 +125,7 @@ class Utils():
         plt.title('KNN score heatmap for ' + description)
 
         plt.colorbar()
+        plt.savefig('./images/heatmap_' + description + '.png')
         plt.show()
 
 
