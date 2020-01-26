@@ -1,8 +1,3 @@
-"""
-Source: https://gurus.pyimagesearch.com/lesson-sample-k-nearest-neighbor-classification/#
-Comment: Made some minor adjustments
-"""
-
 # import the necessary packages
 from __future__ import print_function
 from sklearn.metrics import classification_report
