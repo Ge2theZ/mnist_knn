@@ -55,7 +55,7 @@ class Utils():
         pl = pd.Series((predictions), name = 'Predicted')
         cm = pd.crosstab(tl, pl, rownames=['Actual'], colnames=['Predicted'])
         cm_norm = cm / cm.sum(axis=1) #normalize
-        cm_norm.round(2).to_csv('con_mat'+title+'.csv', index=False, header=True)
+        cm_norm.round(2).to_csv('./results/con_mat'+title+'.csv', index=False, header=True)
 
         #plot
         cm_plt = pd.DataFrame(cm_norm, range(10), range(10))
